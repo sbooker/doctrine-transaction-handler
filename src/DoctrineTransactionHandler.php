@@ -8,7 +8,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class DoctrineTransactionHandler implements TransactionHandler
 {
-    private EntityManagerInterface $em;
+    /** @var EntityManagerInterface */
+    private $em;
 
     public function __construct(EntityManagerInterface $em)
     {

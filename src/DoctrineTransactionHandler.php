@@ -21,24 +21,18 @@ final class DoctrineTransactionHandler implements TransactionHandler
         $this->getEntityManager()->beginTransaction();
     }
 
-    public function commit(array $entities): void
-    {
-        array_map([$this, 'flush'], $entities);
-        $this->getEntityManager()->commit();
-        $this->clear();
-    }
-
     /**
-     * @param object $entity
+     * @param array $entities
      * @throws \Exception
      */
-    private function flush(object $entity): void
+    public function commit(array $entities): void
     {
         if (!$this->getEntityManager()->isOpen()) {
             throw new \Exception('Entity manager closed');
         }
-
-        $this->getEntityManager()->getUnitOfWork()->commit($entity);
+        $this->getEntityManager()->getUnitOfWork()->commit($entities);
+        $this->getEntityManager()->commit();
+        $this->clear();
     }
 
     public function rollback(): void

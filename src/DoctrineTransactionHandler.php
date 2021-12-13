@@ -30,6 +30,8 @@ final class DoctrineTransactionHandler implements TransactionHandler
         if (!$this->getEntityManager()->isOpen()) {
             throw new \Exception('Entity manager closed');
         }
+
+        $this->getEntityManager()->getUnitOfWork()->computeChangeSets();
         $this->getEntityManager()->getUnitOfWork()->commit($entities);
         $this->getEntityManager()->commit();
         $this->clear();

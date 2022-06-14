@@ -30,7 +30,7 @@ final class DoctrineTransactionHandler implements TransactionHandler
         if (!$this->getEntityManager()->isOpen()) {
             throw new \Exception('Entity manager closed');
         }
-        $this->getEntityManager()->getUnitOfWork()->commit($entities);
+        $this->getEntityManager()->flush();
         $this->getEntityManager()->commit();
         $this->clear();
     }
@@ -51,6 +51,11 @@ final class DoctrineTransactionHandler implements TransactionHandler
     public function persist(object $entity): void
     {
         $this->getEntityManager()->persist($entity);
+    }
+
+    public function detach(object $entity): void
+    {
+        $this->getEntityManager()->getUnitOfWork()->detach($entity);
     }
 
     public function getLocked(string $entityClassName, $entityId): ?object

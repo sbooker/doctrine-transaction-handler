@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sbooker\TransactionManager;
 
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class DoctrineTransactionHandler implements TransactionHandler
@@ -20,8 +21,15 @@ final class DoctrineTransactionHandler implements TransactionHandler
         $this->getEntityManager()->beginTransaction();
     }
 
-    public function commit(): void
+    /**
+     * @param array $entities
+     * @throws \Exception
+     */
+    public function commit(array $entities): void
     {
+        if (!$this->getEntityManager()->isOpen()) {
+            throw new \Exception('Entity manager closed');
+        }
         $this->getEntityManager()->flush();
         $this->getEntityManager()->commit();
         $this->clear();
@@ -38,6 +46,21 @@ final class DoctrineTransactionHandler implements TransactionHandler
         if (!$this->getEntityManager()->getConnection()->isTransactionActive()) {
             $this->getEntityManager()->clear();
         }
+    }
+
+    public function persist(object $entity): void
+    {
+        $this->getEntityManager()->persist($entity);
+    }
+
+    public function detach(object $entity): void
+    {
+        $this->getEntityManager()->getUnitOfWork()->detach($entity);
+    }
+
+    public function getLocked(string $entityClassName, $entityId): ?object
+    {
+        return $this->getEntityManager()->getRepository($entityClassName)->find($entityId, LockMode::PESSIMISTIC_WRITE);
     }
 
     private function getEntityManager(): EntityManagerInterface

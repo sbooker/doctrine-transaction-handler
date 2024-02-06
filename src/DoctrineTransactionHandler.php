@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sbooker\TransactionManager;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -30,9 +31,14 @@ final class DoctrineTransactionHandler implements TransactionHandler
         if (!$this->getEntityManager()->isOpen()) {
             throw new \Exception('Entity manager closed');
         }
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->commit();
-        $this->clear();
+
+        try {
+            $this->getEntityManager()->flush();
+            $this->getEntityManager()->commit();
+            $this->clear();
+        } catch (UniqueConstraintViolationException $exception) {
+            throw new UniqueConstraintViolation($exception->getMessage(), $exception->getCode(), $exception);
+        }
     }
 
     public function rollback(): void

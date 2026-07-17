@@ -13,7 +13,7 @@
   "require": {
     "php": "^7.4 || ^8.0",
     "sbooker/transaction-manager": "^2.3 || ^3.0",
-    "doctrine/orm": "^2.4"
+    "doctrine/orm": "^2.4 || ^3.0"
   },
   "autoload": {
     "psr-4": {
